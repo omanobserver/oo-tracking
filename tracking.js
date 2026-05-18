@@ -10,7 +10,7 @@
 
   // ── الإعدادات ───────────────────────────────────────────────
   var CFG = {
-    endpoint:     'endpoint: 'https://observer-ai-studio.vercel.app/api/collect', // ← غيّر هذا
+    endpoint:     'https://observer-ai-studio.vercel.app/api/collect', // ← غيّر هذا
     pingInterval: 15000,   // نبضة كل 15 ثانية
     idleTimeout:  30000,   // خمول بعد 30 ثانية بلا تفاعل
     scrollThrottle: 250,   // قياس التمرير كل 250ms
