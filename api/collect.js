@@ -28,11 +28,12 @@ const ALLOWED_ORIGIN = allowedOrigins.includes(requestOrigin)
 
   // رؤوس CORS — ضرورية لأن الطلب يأتي من نطاق مختلف
   const corsHeaders = {
-    'Access-Control-Allow-Origin':  ALLOWED_ORIGIN,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Max-Age':       '86400',
-  };
+  'Access-Control-Allow-Origin':      ALLOWED_ORIGIN,
+  'Access-Control-Allow-Methods':     'POST, OPTIONS',
+  'Access-Control-Allow-Headers':     'Content-Type',
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Max-Age':           '86400',
+};
 
   // معالجة طلبات OPTIONS (pre-flight)
   if (request.method === 'OPTIONS') {
