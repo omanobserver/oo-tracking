@@ -14,7 +14,15 @@ export const config = {
 
 export default async function handler(request) {
 
-  const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://omanobserver.om';
+  const requestOrigin = request.headers.get('origin') || '';
+const allowedOrigins = [
+  'https://omanobserver.om',
+  'https://beta.omanobserver.om',
+  'https://www.omanobserver.om',
+];
+const ALLOWED_ORIGIN = allowedOrigins.includes(requestOrigin) 
+  ? requestOrigin 
+  : allowedOrigins[0];
   const SUPABASE_URL   = process.env.SUPABASE_URL;
   const SUPABASE_KEY   = process.env.SUPABASE_ANON_KEY;
 
