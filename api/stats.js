@@ -15,26 +15,37 @@ export default async function handler(request) {
   }
 
   try {
-    const [active, today, articles, sources, weekly, monthly, sectionsAll] =
-      await Promise.all([
-        supabaseGet(URL_BASE, SERVICE_KEY, 'active_readers'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'today_stats'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'top_articles'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'traffic_sources'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'weekly_stats'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'monthly_stats'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'sections_alltime'),
-      ]);
+    const [
+      active, today, articles, sources,
+      weekly, monthly, sectionsAll,
+      completion, peakHours, returningVsNew, sectionPerf
+    ] = await Promise.all([
+      supabaseGet(URL_BASE, SERVICE_KEY, 'active_readers'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'today_stats'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'top_articles'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'traffic_sources'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'weekly_stats'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'monthly_stats'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'sections_alltime'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'completion_rate'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'peak_hours'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'returning_vs_new'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'sections_performance'),
+    ]);
 
     const result = {
-      active_readers:   active?.[0]?.count ?? 0,
-      today:            today?.[0] ?? {},
-      top_articles:     articles ?? [],
-      traffic_sources:  sources ?? [],
-      weekly_stats:     weekly ?? [],
-      monthly_stats:    monthly ?? [],
-      sections_alltime: sectionsAll ?? [],
-      fetched_at:       new Date().toISOString(),
+      active_readers:      active?.[0]?.count ?? 0,
+      today:               today?.[0] ?? {},
+      top_articles:        articles ?? [],
+      traffic_sources:     sources ?? [],
+      weekly_stats:        weekly ?? [],
+      monthly_stats:       monthly ?? [],
+      sections_alltime:    sectionsAll ?? [],
+      completion_rate:     completion ?? [],
+      peak_hours:          peakHours ?? [],
+      returning_vs_new:    returningVsNew ?? [],
+      sections_performance: sectionPerf ?? [],
+      fetched_at:          new Date().toISOString(),
     };
 
     return new Response(JSON.stringify(result), { status: 200, headers });
