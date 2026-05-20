@@ -110,10 +110,15 @@
       datePublished:  PAGE.datePublished,
       keywords:       PAGE.keywords,
       referrer:       PAGE.referrer,
+      engagedTime:    ET.get(),
+      scrollDepth:    SD.max,
+      isFinal:        Boolean(isFinal),
+      connectionType: (navigator.connection && navigator.connection.effectiveType) || 'unknown',
+      viewport:       PAGE.viewport,
+    });
 
     log('Ping' + (isFinal ? ' [final]' : ''), JSON.parse(payload));
 
-    // Beacon API — لا يبطئ الصفحة ويعمل حتى عند إغلاقها
     if (navigator.sendBeacon) {
       navigator.sendBeacon(CFG.endpoint, new Blob([payload], { type: 'application/json' }));
     } else {
