@@ -1,11 +1,6 @@
 export const config = { runtime: 'edge' };
 
-// ── Cache بسيط في memory ────────────────────────────────────
-let cache = {
-  heavy: null,        // البيانات الثقيلة (stats, charts, etc.)
-  heavyAt: 0,         // وقت آخر تحديث
-  TTL: 5 * 60 * 1000 // 5 دقائق
-};
+let cache = { heavy: null, heavyAt: 0, TTL: 5 * 60 * 1000 };
 
 export default async function handler(request) {
   const URL_BASE    = process.env.SUPABASE_URL;
@@ -24,57 +19,38 @@ export default async function handler(request) {
   try {
     const now = Date.now();
 
-    // ── 1. Real-time: دائماً من Supabase (فقط view-ين) ──────
-    const [active, articles] = await Promise.all([
+    // Real-time فقط: view-ين خفيفتين
+    const [active, today] = await Promise.all([
       supabaseGet(URL_BASE, SERVICE_KEY, 'active_readers'),
-      supabaseGet(URL_BASE, SERVICE_KEY, 'top_articles'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'today_stats'),
     ]);
 
-    // ── 2. Heavy: من cache إذا لم تنتهِ المدة ───────────────
+    // Heavy: كل 5 دقائق فقط — view-ين إضافيتين
     if (!cache.heavy || now - cache.heavyAt > cache.TTL) {
-      const [
-        today, sources, weekly, monthly, sectionsAll,
-        completion, peakHours, returningVsNew, sectionPerf,
-        authorStats, contentAge, topKeywords
-      ] = await Promise.all([
-        supabaseGet(URL_BASE, SERVICE_KEY, 'today_stats'),
+      const [articles, sources] = await Promise.all([
+        supabaseGet(URL_BASE, SERVICE_KEY, 'top_articles'),
         supabaseGet(URL_BASE, SERVICE_KEY, 'traffic_sources'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'weekly_stats'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'monthly_stats'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'sections_alltime'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'completion_rate'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'peak_hours'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'returning_vs_new'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'sections_performance'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'author_stats'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'content_age_performance'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'top_keywords'),
       ]);
-
-      cache.heavy = {
-        today:                today?.[0] ?? {},
-        traffic_sources:      sources ?? [],
-        weekly_stats:         weekly ?? [],
-        monthly_stats:        monthly ?? [],
-        sections_alltime:     sectionsAll ?? [],
-        completion_rate:      completion ?? [],
-        peak_hours:           peakHours ?? [],
-        returning_vs_new:     returningVsNew ?? [],
-        sections_performance: sectionPerf ?? [],
-        author_stats:         authorStats ?? [],
-        content_age:          contentAge ?? [],
-        top_keywords:         topKeywords ?? [],
-      };
+      cache.heavy = { top_articles: articles ?? [], traffic_sources: sources ?? [] };
       cache.heavyAt = now;
     }
 
-    // ── 3. دمج النتائج ───────────────────────────────────────
     const result = {
-      active_readers: active?.[0]?.count ?? 0,
-      top_articles:   articles ?? [],
-      ...cache.heavy,
-      fetched_at:     new Date().toISOString(),
-      cache_age:      Math.round((now - cache.heavyAt) / 1000) + 's',
+      active_readers:  active?.[0]?.count ?? 0,
+      today:           today?.[0] ?? {},
+      top_articles:    cache.heavy?.top_articles ?? [],
+      traffic_sources: cache.heavy?.traffic_sources ?? [],
+      weekly_stats:    [],
+      monthly_stats:   [],
+      sections_alltime: [],
+      completion_rate: [],
+      peak_hours:      [],
+      returning_vs_new: [],
+      sections_performance: [],
+      author_stats:    [],
+      content_age:     [],
+      top_keywords:    [],
+      fetched_at:      new Date().toISOString(),
     };
 
     return new Response(JSON.stringify(result), { status: 200, headers });
