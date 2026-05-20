@@ -6,9 +6,12 @@ export default async function handler(request) {
   const SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
   const headers = {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-  };
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Cache-Control': 'no-store, no-cache, must-revalidate',
+  'CDN-Cache-Control': 'no-store',
+  'Vercel-CDN-Cache-Control': 'no-store',
+};
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers });
