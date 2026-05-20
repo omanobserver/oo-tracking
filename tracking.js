@@ -19,16 +19,19 @@
 
   // ── بيانات الصفحة (تُجمع مرة واحدة عند التحميل) ────────────
   var PAGE = {
-    url:       location.href,
-    path:      location.pathname,
-    title:     document.title,
-    referrer:  document.referrer,
-    // استخراج معرف المقال من meta tag أو آخر جزء في الـ URL
-    articleId: getMeta('article-id') || getSlug(),
-    section:   getMeta('article-section') || getSection(),
-    sessionId: getOrCreate('sessionStorage', 'oa_sess', 'sess_'),
-    visitorId: getOrCreate('localStorage',   'oa_vis',  'vis_'),
-    viewport:  { w: innerWidth, h: innerHeight },
+    url:          location.href,
+    path:         location.pathname,
+    title:        document.title,
+    referrer:     document.referrer,
+    articleId:    getMeta('Idkeywords') || getMeta('article-id') || getSlug(),
+    section:      getMeta('article-section') || getSection(),
+    author:       getMeta('author') || '',
+    pageType:     getMeta('pageType') || 'unknown',
+    datePublished:getMeta('datePublished') || '',
+    keywords:     getMeta('keywords') || '',
+    sessionId:    getOrCreate('sessionStorage', 'oa_sess', 'sess_'),
+    visitorId:    getOrCreate('localStorage',   'oa_vis',  'vis_'),
+    viewport:     { w: innerWidth, h: innerHeight },
   };
 
   // ── قياس Engaged Time ───────────────────────────────────────
@@ -102,14 +105,11 @@
       title:          PAGE.title,
       articleId:      PAGE.articleId,
       section:        PAGE.section,
+      author:         PAGE.author,
+      pageType:       PAGE.pageType,
+      datePublished:  PAGE.datePublished,
+      keywords:       PAGE.keywords,
       referrer:       PAGE.referrer,
-      engagedTime:    ET.get(),
-      scrollDepth:    SD.max,
-      isFinal:        !!isFinal,
-      viewport:       PAGE.viewport,
-      connectionType: (navigator.connection && navigator.connection.effectiveType) || 'unknown',
-      timestamp:      Date.now(),
-    });
 
     log('Ping' + (isFinal ? ' [final]' : ''), JSON.parse(payload));
 
