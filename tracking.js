@@ -10,12 +10,13 @@
 
   // ── الإعدادات ───────────────────────────────────────────────
   var CFG = {
-    endpoint:     'https://oo-tracking.vercel.app/api/collect',
-    pingInterval: 30000,   // نبضة كل 5 ثانية
-    idleTimeout:  30000,   // خمول بعد 30 ثانية بلا تفاعل
-    scrollThrottle: 250,   // قياس التمرير كل 250ms
-    debug:        false,   // true لرؤية السجلات في Console
-  };
+    endpoint: 'https://oo-tracking.vercel.app/api/collect',
+    pingInterval: 60000,  // دقيقة كاملة
+    idleTimeout:  60000,
+    scrollThrottle: 250,
+    debug: false,
+};
+
 
   // ── بيانات الصفحة (تُجمع مرة واحدة عند التحميل) ────────────
   var PAGE = {
