@@ -11,7 +11,7 @@
   // ── الإعدادات ───────────────────────────────────────────────
   var CFG = {
     endpoint:     'https://oo-tracking.vercel.app/api/collect',
-    pingInterval: 5000,   // نبضة كل 5 ثانية
+    pingInterval: 30000,   // نبضة كل 5 ثانية
     idleTimeout:  30000,   // خمول بعد 30 ثانية بلا تفاعل
     scrollThrottle: 250,   // قياس التمرير كل 250ms
     debug:        false,   // true لرؤية السجلات في Console
