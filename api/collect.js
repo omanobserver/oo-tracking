@@ -66,22 +66,25 @@ const ALLOWED_ORIGIN = allowedOrigins.includes(requestOrigin)
 
     // ── 2. تنظيف وتحضير البيانات ────────────────────────────
     const record = {
-      session_id:   String(data.sessionId).slice(0, 64),
-      visitor_id:   String(data.visitorId || 'unknown').slice(0, 64),
-      url:          String(data.url || '').slice(0, 500),
-      path:         String(data.path || '').slice(0, 300),
-      title:        data.title ? String(data.title).slice(0, 200) : null,
-      article_id:   data.articleId ? String(data.articleId).slice(0, 100) : null,
-      section:      String(data.section || 'unknown').slice(0, 50),
-      referrer:     String(data.referrer || '').slice(0, 300),
-      engaged_time: Math.min(Math.max(parseInt(data.engagedTime) || 0, 0), 3600),
-      scroll_depth: Math.min(Math.max(parseInt(data.scrollDepth) || 0, 0), 100),
-      is_final:     Boolean(data.isFinal),
-      // بيانات جغرافية من Vercel تلقائياً
-      geo_country:  request.geo?.country || 'OM',
-      geo_city:     request.geo?.city    || 'Unknown',
-      connection:   String(data.connectionType || 'unknown').slice(0, 20),
-      vp_width:     parseInt(data.viewport?.w) || null,
+      session_id:     String(data.sessionId).slice(0, 64),
+      visitor_id:     String(data.visitorId || 'unknown').slice(0, 64),
+      url:            String(data.url || '').slice(0, 500),
+      path:           String(data.path || '').slice(0, 300),
+      title:          data.title ? String(data.title).slice(0, 200) : null,
+      article_id:     data.articleId ? String(data.articleId).slice(0, 100) : null,
+      section:        String(data.section || 'unknown').slice(0, 50),
+      author:         String(data.author || '').slice(0, 100),
+      page_type:      String(data.pageType || 'unknown').slice(0, 50),
+      date_published: data.datePublished ? String(data.datePublished).slice(0, 50) : null,
+      keywords:       String(data.keywords || '').slice(0, 500),
+      referrer:       String(data.referrer || '').slice(0, 300),
+      engaged_time:   Math.min(Math.max(parseInt(data.engagedTime) || 0, 0), 3600),
+      scroll_depth:   Math.min(Math.max(parseInt(data.scrollDepth) || 0, 0), 100),
+      is_final:       Boolean(data.isFinal),
+      geo_country:    request.geo?.country || 'OM',
+      geo_city:       request.geo?.city    || 'Unknown',
+      connection:     String(data.connectionType || 'unknown').slice(0, 20),
+      vp_width:       parseInt(data.viewport?.w) || null,
     };
 
     // ── 3. حفظ في Supabase ──────────────────────────────────
