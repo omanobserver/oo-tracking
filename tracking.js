@@ -179,12 +179,15 @@ setTimeout(function () { ping(false); }, 1000);
       if (document.hidden) { ET.idle(); } else { ET.engage(); }
     });
 
-    // قياس التمرير الأولي
-    SD.measure();
-    ET.engage();
+ // قياس التمرير الأولي
+SD.measure();
+ET.engage();
 
-    // نبضة أولى بعد 3 ثوان
-    setTimeout(function () { ping(false); }, 3000);
+// نبضة فورية عند تحميل الصفحة (تسجل القارئ حتى لو لم يتفاعل بعد)
+setTimeout(function () { ping(false); }, 1000);
+
+// نبضة ثانية بعد 3 ثوان للتأكيد
+setTimeout(function () { ping(false); }, 3000);
 
     // نبضات دورية
     var timer = setInterval(function () { ping(false); }, CFG.pingInterval);
