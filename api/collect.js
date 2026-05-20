@@ -87,23 +87,31 @@ const ALLOWED_ORIGIN = allowedOrigins.includes(requestOrigin)
       vp_width:       parseInt(data.viewport?.w) || null,
     };
 
-    // ── 3. حفظ في Supabase ──────────────────────────────────
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/page_events`, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'apikey':         SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Prefer':         'return=minimal', // أسرع — لا تُرجع البيانات المُدرجة
-      },
-      body: JSON.stringify(record),
-    });
+    // ── 3. حفظ في Supabase مع timeout ──────────────────────────
+const controller = new AbortController();
+const timeout = setTimeout(() => controller.abort(), 3000); // 3 ثوانٍ max
 
-    if (!response.ok) {
-      // سجّل الخطأ داخلياً لكن أرسل 200 للمتصفح
-      // (لا نريد أن يُعيد الـ Beacon محاولة الإرسال)
-      console.error('Supabase insert error:', await response.text());
-    }
+try {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/page_events`, {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'apikey':         SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Prefer':         'return=minimal',
+    },
+    body: JSON.stringify(record),
+    signal: controller.signal,
+  });
+  clearTimeout(timeout);
+  if (!response.ok) {
+    console.error('Supabase insert error:', await response.text());
+  }
+} catch (err) {
+  clearTimeout(timeout);
+  console.error('Supabase timeout or error:', err.message);
+  // نتجاهل الخطأ ونكمل
+}
 
     // ── 4. رد ناجح دائماً للمتصفح ───────────────────────────
     return new Response(JSON.stringify({ ok: true }), {
