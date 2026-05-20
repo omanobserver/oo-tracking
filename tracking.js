@@ -164,6 +164,8 @@
 
   // ── التهيئة ──────────────────────────────────────────────────
   function init() {
+    // نبضة فورية عند تحميل الصفحة — تسجل القارئ حتى لو لم يتفاعل
+setTimeout(function () { ping(false); }, 1000);
     // أحداث التفاعل
     ['mousemove', 'keydown', 'touchstart', 'click'].forEach(function (ev) {
       document.addEventListener(ev, function () { ET.engage(); }, { passive: true });
