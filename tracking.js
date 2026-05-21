@@ -11,11 +11,12 @@
   // ── الإعدادات ───────────────────────────────────────────────
   var CFG = {
     endpoint: 'https://oo-tracking.vercel.app/api/collect',
-    pingInterval: 60000,  // دقيقة كاملة
+    pingInterval: 120000,  // دقيقتين
     idleTimeout:  60000,
     scrollThrottle: 250,
     debug: false,
 };
+
 
 
   // ── بيانات الصفحة (تُجمع مرة واحدة عند التحميل) ────────────
