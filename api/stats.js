@@ -1,7 +1,5 @@
 export const config = { runtime: 'edge' };
 
-let cache = { heavy: null, heavyAt: 0, TTL: 5 * 60 * 1000 };
-
 export default async function handler(request) {
   const URL_BASE    = process.env.SUPABASE_URL;
   const SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -9,7 +7,7 @@ export default async function handler(request) {
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+    'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
   };
 
   if (request.method === 'OPTIONS') {
@@ -17,46 +15,24 @@ export default async function handler(request) {
   }
 
   try {
-    const now = Date.now();
-
-    // Real-time فقط: view-ين خفيفتين
-    const [active, today] = await Promise.all([
+    const [active, today, articles, sources] = await Promise.all([
       supabaseGet(URL_BASE, SERVICE_KEY, 'active_readers'),
       supabaseGet(URL_BASE, SERVICE_KEY, 'today_stats'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'top_articles'),
+      supabaseGet(URL_BASE, SERVICE_KEY, 'traffic_sources'),
     ]);
-
-    // Heavy: كل 5 دقائق فقط — view-ين إضافيتين
-    if (!cache.heavy || now - cache.heavyAt > cache.TTL) {
-      const [articles, sources] = await Promise.all([
-        supabaseGet(URL_BASE, SERVICE_KEY, 'top_articles'),
-        supabaseGet(URL_BASE, SERVICE_KEY, 'traffic_sources'),
-      ]);
-      cache.heavy = { top_articles: articles ?? [], traffic_sources: sources ?? [] };
-      cache.heavyAt = now;
-    }
 
     const result = {
       active_readers:  active?.[0]?.count ?? 0,
       today:           today?.[0] ?? {},
-      top_articles:    cache.heavy?.top_articles ?? [],
-      traffic_sources: cache.heavy?.traffic_sources ?? [],
-      weekly_stats:    [],
-      monthly_stats:   [],
-      sections_alltime: [],
-      completion_rate: [],
-      peak_hours:      [],
-      returning_vs_new: [],
-      sections_performance: [],
-      author_stats:    [],
-      content_age:     [],
-      top_keywords:    [],
+      top_articles:    articles ?? [],
+      traffic_sources: sources ?? [],
       fetched_at:      new Date().toISOString(),
     };
 
     return new Response(JSON.stringify(result), { status: 200, headers });
 
   } catch (error) {
-    console.error('Stats error:', error);
     return new Response(
       JSON.stringify({ error: 'Failed to fetch stats' }),
       { status: 500, headers }
@@ -65,7 +41,7 @@ export default async function handler(request) {
 }
 
 async function supabaseGet(baseUrl, key, view) {
-  const res = await fetch(`${baseUrl}/rest/v1/${view}?select=*`, {
+  const res = await fetch(`${baseUrl}/rest/v1/${view}?select=*&limit=10`, {
     headers: {
       'apikey':        key,
       'Authorization': `Bearer ${key}`,
